@@ -28,6 +28,7 @@ class ServiceContainer
         $this->config = $config;
         $this->rsaPrivateKey = $this->config['merchant_private_key'];
         $this->gatewayUrl = $config['gatewayUrl'];
+        $this->signType = $config['sign_type'];
     }
 
     public function execute()
@@ -49,10 +50,11 @@ class ServiceContainer
         //待签名字符串
         $preSignStr = $this->getSignContent($totalParams);
 
-        echo $preSignStr;die();
+        //echo $preSignStr;
+        //die();
 
         //签名
-        $totalParams["sign"] = $this->generateSign($totalParams, $this->config['signType']);
+        $totalParams["sign"] = $this->generateSign($totalParams, $this->signType);
 
         // var_dump($totalParams);die();
         return $this->buildRequestForm($totalParams);
