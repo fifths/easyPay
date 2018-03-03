@@ -45,18 +45,11 @@ class ServiceContainer
         $sysParams["notify_url"] = $this->config['notify_url'];
         $this->sysParams = $sysParams;
         $apiParams['biz_content'] = $this->getBizContent();
-
         $totalParams = array_merge($apiParams, $sysParams);
         //待签名字符串
-        $preSignStr = $this->getSignContent($totalParams);
-
-        //echo $preSignStr;
-        //die();
-
+        // $preSignStr = $this->getSignContent($totalParams);
         //签名
         $totalParams["sign"] = $this->generateSign($totalParams, $this->signType);
-
-        // var_dump($totalParams);die();
         return $this->buildRequestForm($totalParams);
     }
 
@@ -120,7 +113,6 @@ class ServiceContainer
     public function getSignContent($params)
     {
         ksort($params);
-
         $stringToBeSigned = "";
         $i = 0;
         foreach ($params as $k => $v) {
@@ -137,7 +129,6 @@ class ServiceContainer
                 $i++;
             }
         }
-
         unset ($k, $v);
         return $stringToBeSigned;
     }
@@ -155,7 +146,6 @@ class ServiceContainer
             return true;
         if (trim($value) === "")
             return true;
-
         return false;
     }
 
@@ -167,7 +157,6 @@ class ServiceContainer
      */
     function characet($data, $targetCharset)
     {
-
         if (!empty($data)) {
             $fileType = $this->fileCharset;
             if (strcasecmp($fileType, $targetCharset) != 0) {
@@ -175,8 +164,6 @@ class ServiceContainer
                 //				$data = iconv($fileType, $targetCharset.'//IGNORE', $data);
             }
         }
-
-
         return $data;
     }
 }

@@ -14,4 +14,3 @@ $data = [
     'body' => '这是一个测试单子'
 ];
 $app->pagePay($data);
-echo $app->execute();
