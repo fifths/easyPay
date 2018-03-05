@@ -18,6 +18,8 @@ class ServiceContainer
 
     public $rsaPrivateKeyFilePath;
 
+    public $alipayPublicKey;
+
     // 表单提交字符集编码
     public $postCharset = "UTF-8";
 
@@ -27,6 +29,8 @@ class ServiceContainer
     {
         $this->config = $config;
         $this->rsaPrivateKey = $this->config['merchant_private_key'];
+        // $this->alipayPublicKey = $this->config['alipay_public_key'];
+        $this->alipayrsaPublicKey = $this->config['alipay_public_key'];
         $this->gatewayUrl = $config['gatewayUrl'];
         $this->signType = $config['sign_type'];
     }
@@ -165,5 +169,52 @@ class ServiceContainer
             }
         }
         return $data;
+    }
+
+    /** rsaCheckV1 & rsaCheckV2
+     *  验证签名
+     *  在使用本方法前，必须初始化AopClient且传入公钥参数。
+     *  公钥是否是读取字符串还是读取文件，是根据初始化传入的值判断的。
+     **/
+    public function rsaCheckV1($params, $rsaPublicKeyFilePath, $signType = 'RSA')
+    {
+        $sign = $params['sign'];
+        $params['sign_type'] = null;
+        $params['sign'] = null;
+        return $this->verify($this->getSignContent($params), $sign, $rsaPublicKeyFilePath, $signType);
+    }
+
+    function verify($data, $sign, $rsaPublicKeyFilePath, $signType = 'RSA')
+    {
+
+        if ($this->checkEmpty($this->alipayPublicKey)) {
+
+            $pubKey = $this->alipayrsaPublicKey;
+            $res = "-----BEGIN PUBLIC KEY-----\n" .
+                wordwrap($pubKey, 64, "\n", true) .
+                "\n-----END PUBLIC KEY-----";
+        } else {
+            //读取公钥文件
+            $pubKey = file_get_contents($rsaPublicKeyFilePath);
+            //转换为openssl格式密钥
+            $res = openssl_get_publickey($pubKey);
+        }
+
+        ($res) or die('支付宝RSA公钥错误。请检查公钥文件格式是否正确');
+
+        //调用openssl内置方法验签，返回bool值
+
+        if ("RSA2" == $signType) {
+            $result = (bool)openssl_verify($data, base64_decode($sign), $res, OPENSSL_ALGO_SHA256);
+        } else {
+            $result = (bool)openssl_verify($data, base64_decode($sign), $res);
+        }
+
+        if (!$this->checkEmpty($this->alipayPublicKey)) {
+            //释放资源
+            openssl_free_key($res);
+        }
+
+        return $result;
     }
 }
