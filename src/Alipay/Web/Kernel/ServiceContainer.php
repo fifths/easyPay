@@ -35,6 +35,28 @@ class ServiceContainer
         $this->signType = $config['sign_type'];
     }
 
+    public function getExecuteData()
+    {
+        //组装系统参数
+        $sysParams["app_id"] = $this->config['app_id'];
+        $sysParams["method"] = $this->apiMethodName;
+        $sysParams["format"] = 'JSON';
+        $sysParams["return_url"] = $this->config['return_url'];
+        $sysParams["charset"] = 'UTF-8';
+        $sysParams["sign_type"] = $this->config['sign_type'];
+        $sysParams["timestamp"] = date("Y-m-d H:i:s");
+        $sysParams["version"] = '1.0';
+        $sysParams["notify_url"] = $this->config['notify_url'];
+        $this->sysParams = $sysParams;
+        $apiParams['biz_content'] = $this->getBizContent();
+        $totalParams = array_merge($apiParams, $sysParams);
+        //待签名字符串
+        // $preSignStr = $this->getSignContent($totalParams);
+        //签名
+        $totalParams["sign"] = $this->generateSign($totalParams, $this->signType);
+        return $totalParams;
+    }
+
     public function execute()
     {
         //组装系统参数
