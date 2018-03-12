@@ -50,9 +50,6 @@ class ServiceContainer
         $this->sysParams = $sysParams;
         $apiParams['biz_content'] = $this->getBizContent();
         $totalParams = array_merge($apiParams, $sysParams);
-        //待签名字符串
-        // $preSignStr = $this->getSignContent($totalParams);
-        //签名
         $totalParams["sign"] = $this->generateSign($totalParams, $this->signType);
         return $totalParams;
     }
