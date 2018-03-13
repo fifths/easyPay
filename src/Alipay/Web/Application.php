@@ -11,7 +11,7 @@ class Application extends ServiceContainer
     {
         $this->apiMethodName = 'alipay.trade.page.pay';
         foreach ($data as $k => $v) {
-            $this->bizContentarr[$k] = $data[$v];
+            $this->bizContentarr[$k] = $v;
         }
         /*$this->bizContentarr['out_trade_no'] = $data['out_trade_no'];
         $this->bizContentarr['product_code'] = $data['product_code'];
